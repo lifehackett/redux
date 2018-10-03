@@ -126,7 +126,11 @@ export default function createStore(reducer, preloadedState, enhancer) {
     let isSubscribed = true
 
     ensureCanMutateNextListeners()
+    console.log('%%%%%%%%%%% SUBSCRIBING %%%%%%%%%%%%%%%%%%')
+    console.log('before: ', nextListeners.length)
     nextListeners.push(listener)
+    console.log('after: ', nextListeners.length)
+
 
     return function unsubscribe() {
       if (!isSubscribed) {
@@ -174,7 +178,9 @@ export default function createStore(reducer, preloadedState, enhancer) {
    * return something else (for example, a Promise you can await).
    */
   function dispatch(action) {
+    console.log('%%%%%%%%%%%%%%%%%%% DISPATCHING')
     if (!isPlainObject(action)) {
+      console.log('first error')
       throw new Error(
         'Actions must be plain objects. ' +
           'Use custom middleware for async actions.'
@@ -182,6 +188,7 @@ export default function createStore(reducer, preloadedState, enhancer) {
     }
 
     if (typeof action.type === 'undefined') {
+      console.log('second error')
       throw new Error(
         'Actions may not have an undefined "type" property. ' +
           'Have you misspelled a constant?'
@@ -189,17 +196,21 @@ export default function createStore(reducer, preloadedState, enhancer) {
     }
 
     if (isDispatching) {
+      console.log('third error')
       throw new Error('Reducers may not dispatch actions.')
     }
 
     try {
       isDispatching = true
+      console.log('before state', currentState)
       currentState = currentReducer(currentState, action)
+      console.log('after state', currentState)
     } finally {
       isDispatching = false
     }
 
     const listeners = (currentListeners = nextListeners)
+    console.log('listeners.length', listeners.length);
     for (let i = 0; i < listeners.length; i++) {
       const listener = listeners[i]
       listener()
